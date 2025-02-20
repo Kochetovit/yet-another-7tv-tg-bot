@@ -1,0 +1,23 @@
+package main
+
+import (
+	"log/slog"
+
+	"7tv/tg/config"
+	"7tv/tg"
+)
+
+func main() {
+	cfg, err := config.Init("config.json")
+	if err != nil {
+		slog.Error("failed to init config", "err", err.Error())
+
+		return
+	}
+
+	tgBot := tg.NewBot(cfg)
+
+	if err := tgBot.GetStickerSet(cfg.StickerPackName + "_by_" + cfg.BotName); err != nil {
+		slog.Error("failed to get sticker set", "err", err.Error())
+	}
+}
