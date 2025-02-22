@@ -6,11 +6,18 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"mime/multipart"
 	"net/http"
+	"os"
 	"time"
 
 	"7tv/tg/config"
 	"7tv/tg/dto"
+)
+
+const (
+	fileName  = "file"
+	attachStr = "attach://"
 )
 
 type Bot struct {
@@ -64,6 +71,98 @@ func (t *Bot) AddStickerToSet(name string) error {
 
 	// TODO: think about it
 	req.Header.Set("Content-Type", "application/json")
+
+	res, err := t.client.Do(req)
+	if err != nil {
+		slog.Error("failed to send request", "err", err.Error())
+
+		return err
+	}
+
+	resBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		slog.Error("failed to read response body", "err", err.Error())
+
+		return err
+	}
+
+	fmt.Printf("%+v", string(resBody))
+
+	return nil
+}
+
+func (t *Bot) AddFileStickerToSet(name string) error {
+	u := t.constructURL("/addStickerToSet")
+
+	fields, err := dto.MarshalMap(
+		dto.AddStickerToSetRequest{
+			UserID: t.cfg.UserID,
+			Name:   name,
+			Sticker: dto.InputSticker{
+				Sticker:   attachStr + fileName,
+				Format:    dto.StickerFormatStatic,
+				EmojiList: []string{"💀"},
+			},
+		},
+	)
+	if err != nil {
+		slog.Error("failed to marshal fields", "err", err.Error())
+
+		return err
+	}
+
+	reqBody := new(bytes.Buffer)
+	mw := multipart.NewWriter(reqBody)
+
+	for key, value := range fields {
+		if err := mw.WriteField(key, value); err != nil {
+			slog.Error("failed to write field", "err", err.Error())
+
+			return err
+		}
+	}
+
+	pw, err := mw.CreateFormFile(fileName, "splort.webp")
+	if err != nil {
+		slog.Error("failed to create form file", "err", err.Error())
+
+		return err
+	}
+
+	file, err := os.Open("splort.webp")
+	if err != nil {
+		slog.Error("failed to open file", "err", err.Error())
+
+		return err
+	}
+
+	content, err := io.ReadAll(file)
+	if err != nil {
+		slog.Error("failed to read file", "err", err.Error())
+
+		return err
+	}
+
+	if _, err := pw.Write(content); err != nil {
+		slog.Error("failed to write file", "err", err.Error())
+
+		return err
+	}
+
+	if err := mw.Close(); err != nil {
+		slog.Error("failed to close multipart writer", "err", err.Error())
+
+		return err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, u, reqBody)
+	if err != nil {
+		slog.Error("failed to create request", "err", err.Error())
+
+		return err
+	}
+
+	req.Header.Set("Content-Type", mw.FormDataContentType())
 
 	res, err := t.client.Do(req)
 	if err != nil {

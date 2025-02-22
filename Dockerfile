@@ -14,5 +14,6 @@ FROM scratch
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /app/bin/app ./app
 COPY ["config.json", "config.json"]
+COPY ["splort.webp", "splort.webp"]
 
 ENTRYPOINT [ "/app" ]
