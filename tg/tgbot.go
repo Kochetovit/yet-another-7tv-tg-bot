@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path"
 	"time"
 
 	"7tv/tg/config"
@@ -91,13 +92,27 @@ func (t *Bot) AddStickerToSet(name string) error {
 	return nil
 }
 
-func (t *Bot) AddFileStickerToSet(name string) error {
+func (t *Bot) AddFileStickerToSet(url string) error {
+	emoteID := path.Base(url)
+
+	tmpInput, err := downloadImage(url7tv + emoteID + pngSuffix)
+	if err != nil {
+		return err
+	}
+	defer os.Remove(tmpInput)
+
+	tmpOutput, err := convertPNG(tmpInput)
+	if err != nil {
+		return err
+	}
+	defer os.Remove(tmpOutput)
+
 	u := t.constructURL("/addStickerToSet")
 
 	fields, err := dto.MarshalMap(
 		dto.AddStickerToSetRequest{
 			UserID: t.cfg.UserID,
-			Name:   name,
+			Name:   t.cfg.StickerPackName + "_by_" + t.cfg.BotName,
 			Sticker: dto.InputSticker{
 				Sticker:   attachStr + fileName,
 				Format:    dto.StickerFormatStatic,
