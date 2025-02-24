@@ -44,10 +44,11 @@ func downloadImage(url string) (string, error) {
 }
 
 func convertPNG(inputPath string) (string, error) {
-	tmpOutputFile, err := os.CreateTemp("", "processed-*.png")
+	tmpOutputFile, err := os.CreateTemp("", "output-*.png")
 	if err != nil {
 		return "", err
 	}
+
 	tmpOutputPath := tmpOutputFile.Name()
 	tmpOutputFile.Close()
 
@@ -71,17 +72,16 @@ func convertPNG(inputPath string) (string, error) {
 }
 
 func convertToWebM(inputPath string) (string, error) {
-	// Create temporary output file
 	tmpOutputFile, err := os.CreateTemp("", "output-*.webm")
 	if err != nil {
 		return "", err
 	}
+
 	tmpOutputPath := tmpOutputFile.Name()
 	tmpOutputFile.Close() // Close immediately so ffmpeg can write to it
 
-	// Build and execute ffmpeg command
 	cmd := exec.Command("ffmpeg",
-		"-y", // Overwrite output file without asking
+		"-y",
 		"-i", inputPath,
 		"-vf", `scale='if(gt(iw,ih),512,-1)':'if(gt(ih,iw),512,-1)',format=yuva420p`,
 		"-c:v", "libvpx-vp9",
