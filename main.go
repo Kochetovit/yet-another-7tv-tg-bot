@@ -17,7 +17,7 @@ func main() {
 
 	tgBot := tg.NewBot(cfg)
 
-	if err := tgBot.GetStickerSet(cfg.StickerPackName + "_by_" + cfg.BotName); err != nil {
+	if err := tgBot.AddFileStickerToSet("https://7tv.app/emotes/01FFFPWV180007P57XYW0BHF1Z"); err != nil {
 		slog.Error("failed to get sticker set", "err", err.Error())
 	}
 }
