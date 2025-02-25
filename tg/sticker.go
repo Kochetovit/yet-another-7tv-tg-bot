@@ -3,6 +3,7 @@ package tg
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -176,6 +177,13 @@ func (t *Bot) CreateStickerSet(name string) error {
 	}
 
 	fmt.Printf("%+v", string(resBody))
+
+	if res.StatusCode != http.StatusOK {
+		err = errors.New("failed to create sticker set")
+		slog.Error("status not ok", "err", err.Error())
+
+		return err
+	}
 
 	return nil
 }

@@ -31,12 +31,20 @@ func (t *Bot) processUpdate(update dto.Update) error {
 
 	switch command {
 	case "/start":
-		responseText = "hello"
-	case "/add":
+		if err := t.CreateStickerSet(t.cfg.StickerPackName + "_by_" + t.cfg.BotName); err != nil {
+			responseText = err.Error()
+		}
+	case "/png":
 		if len(parts) < 2 {
-			responseText = "Please provide text after /add"
+			responseText = "Please provide 7tv emote url"
 		} else {
-			responseText = strings.Join(parts[1:], " ")
+			url := parts[1]
+
+			if err := t.AddStickerToSet(url); err != nil {
+				responseText = err.Error()
+			} else {
+				responseText = "Sticker added to set"
+			}
 		}
 	default:
 		return errors.New("unknown command")
