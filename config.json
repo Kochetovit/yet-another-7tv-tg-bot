@@ -1,4 +1,3 @@
 {
-    "telegramApiBaseUrl": "https://api.telegram.org/bot",
-    "splort": "aboba"
+    "port": 8877
 }

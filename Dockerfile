@@ -25,6 +25,5 @@ COPY --from=ffmpeg /ffmpeg /usr/local/bin/ffmpeg
 COPY --from=ffmpeg /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=go /app/bin/app ./app
 COPY ["config.json", "config.json"]
-COPY ["splort.webp", "splort.webp"]
 
 ENTRYPOINT [ "/app" ]

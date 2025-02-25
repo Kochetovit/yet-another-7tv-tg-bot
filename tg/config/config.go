@@ -8,6 +8,7 @@ import (
 )
 
 const (
+	tgWebhookURLKey    = "TG_WEBHOOK_URL"
 	tgBotTokenKey      = "TG_BOT_TOKEN"
 	tgUserIDKey        = "TG_USER_ID"
 	tgBotNameKey       = "TG_BOT_NAME"
@@ -17,13 +18,14 @@ const (
 type Config struct {
 	// env
 	TelegramBotToken string
-	UserID           int
-	BotName          string
-	StickerPackName  string
+	WebhookURL       string
 
-	// config
-	TelegramAPIBaseURL string `json:"telegramApiBaseUrl"`
-	Splort             string `json:"splort"`
+	UserID  int
+	BotName string
+
+	StickerPackName string
+
+	Port uint
 }
 
 func Init(configPath string) (*Config, error) {
@@ -51,6 +53,11 @@ func Init(configPath string) (*Config, error) {
 		)
 
 		return nil, err
+	}
+
+	c.WebhookURL = os.Getenv(tgWebhookURLKey)
+	if c.WebhookURL == "" {
+		return nil, errors.New(tgWebhookURLKey + " is not set")
 	}
 
 	c.TelegramBotToken = os.Getenv(tgBotTokenKey)

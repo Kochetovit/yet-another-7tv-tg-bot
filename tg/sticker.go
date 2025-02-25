@@ -10,34 +10,9 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"time"
 
-	"7tv/tg/config"
 	"7tv/tg/dto"
 )
-
-const (
-	fileKey   = "file"
-	attachKey = "attach://"
-)
-
-type Bot struct {
-	cfg    *config.Config
-	client *http.Client
-}
-
-func NewBot(cfg *config.Config) *Bot {
-	return &Bot{
-		cfg: cfg,
-		client: &http.Client{
-			Timeout: 10 * time.Second,
-		},
-	}
-}
-
-func (t *Bot) constructURL(path string) string {
-	return t.cfg.TelegramAPIBaseURL + t.cfg.TelegramBotToken + path
-}
 
 func (t *Bot) AddStickerToSet(url string) error {
 	emoteID := path.Base(url)
@@ -159,7 +134,7 @@ func (t *Bot) CreateStickerSet(name string) error {
 			Title:  name,
 			Stickers: []dto.InputSticker{
 				{
-					Sticker:   t.cfg.Splort,
+					Sticker:   "splort.webp",
 					Format:    dto.StickerFormatStatic,
 					EmojiList: []string{"💀"},
 				},
