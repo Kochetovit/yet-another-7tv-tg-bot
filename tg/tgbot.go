@@ -17,8 +17,8 @@ import (
 )
 
 const (
-	fileName  = "file"
-	attachStr = "attach://"
+	fileKey   = "file"
+	attachKey = "attach://"
 )
 
 type Bot struct {
@@ -97,12 +97,16 @@ func (t *Bot) AddFileStickerToSet(url string) error {
 
 	tmpInput, err := downloadImage(url7tv + emoteID + pngSuffix)
 	if err != nil {
+		slog.Error("failed to download image", "err", err.Error())
+
 		return err
 	}
 	defer os.Remove(tmpInput)
 
 	tmpOutput, err := convertPNG(tmpInput)
 	if err != nil {
+		slog.Error("failed to convert image", "err", err.Error())
+
 		return err
 	}
 	defer os.Remove(tmpOutput)
@@ -114,7 +118,7 @@ func (t *Bot) AddFileStickerToSet(url string) error {
 			UserID: t.cfg.UserID,
 			Name:   t.cfg.StickerPackName + "_by_" + t.cfg.BotName,
 			Sticker: dto.InputSticker{
-				Sticker:   attachStr + fileName,
+				Sticker:   attachKey + fileKey,
 				Format:    dto.StickerFormatStatic,
 				EmojiList: []string{"💀"},
 			},
@@ -137,14 +141,14 @@ func (t *Bot) AddFileStickerToSet(url string) error {
 		}
 	}
 
-	pw, err := mw.CreateFormFile(fileName, "splort.webp")
+	pw, err := mw.CreateFormFile(fileKey, tmpOutput)
 	if err != nil {
 		slog.Error("failed to create form file", "err", err.Error())
 
 		return err
 	}
 
-	file, err := os.Open("splort.webp")
+	file, err := os.Open(tmpOutput)
 	if err != nil {
 		slog.Error("failed to open file", "err", err.Error())
 

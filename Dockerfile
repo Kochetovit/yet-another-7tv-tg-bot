@@ -1,4 +1,13 @@
-FROM golang:1.23-alpine AS builder
+FROM alpine:latest AS ffmpeg
+# Install curl to download the static FFmpeg binary
+RUN apk add --no-cache curl
+
+# Download and extract the static FFmpeg build
+RUN curl -LO https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz \
+    && tar xf ffmpeg-release-amd64-static.tar.xz \
+    && mv ffmpeg-*-static/ffmpeg /ffmpeg
+
+FROM golang:1.23-alpine AS go
 WORKDIR /app
 
 COPY go.mod ./
@@ -11,8 +20,10 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o ./bin/app
 
 FROM scratch
 
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /app/bin/app ./app
+COPY --from=ffmpeg /tmp /tmp
+COPY --from=ffmpeg /ffmpeg /usr/local/bin/ffmpeg
+COPY --from=ffmpeg /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=go /app/bin/app ./app
 COPY ["config.json", "config.json"]
 COPY ["splort.webp", "splort.webp"]
 

@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	url7tv    = "https://7tv.app/emotes/"
+	url7tv    = "https://cdn.7tv.app/emote/"
 	gifSuffix = "/4x.gif"
 	pngSuffix = "/4x.png"
 )
