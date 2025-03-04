@@ -25,6 +25,10 @@ func (t *Bot) Run() error {
 }
 
 func (t *Bot) UpdateHandler(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		w.WriteHeader(http.StatusOK)
+	}()
+
 	var update dto.Update
 	if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
 		slog.Error("Error decoding update", "err", err.Error())
@@ -32,11 +36,11 @@ func (t *Bot) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := t.processUpdate(update); err != nil {
-		slog.Error("Error processing update", "err", err.Error())
-
-		return
-	}
+	go func() {
+		if err := t.processUpdate(update); err != nil {
+			slog.Error("Error processing update", "err", err.Error())
+		}
+	}()
 }
 
 func (t *Bot) setWebhook() error {

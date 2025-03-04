@@ -71,7 +71,7 @@ func convertPNG(inputPath string) (string, error) {
 	return tmpOutputPath, nil
 }
 
-func convertToWebM(inputPath string) (string, error) {
+func convertGIF(inputPath string) (string, error) {
 	tmpOutputFile, err := os.CreateTemp("", "output-*.webm")
 	if err != nil {
 		return "", err

@@ -15,24 +15,54 @@ import (
 	"7tv/tg/dto"
 )
 
-func (t *Bot) AddStickerToSet(url string) error {
+type StickerType int
+
+const (
+	stickerTypePNG StickerType = iota
+	stickerTypeGIF
+)
+
+func (t *Bot) AddStickerToSet(url string, stickerType StickerType) error {
+	slog.Info("start adding sticker", "url", url, "stickerType", stickerType)
+
 	emoteID := path.Base(url)
 
-	tmpInput, err := downloadImage(url7tv + emoteID + pngSuffix)
+	var (
+		suffix    string
+		format    dto.StickerFormat
+		convertFn func(string) (string, error)
+	)
+
+	switch stickerType {
+	case stickerTypePNG:
+		suffix = pngSuffix
+		format = dto.StickerFormatStatic
+		convertFn = convertPNG
+	case stickerTypeGIF:
+		suffix = gifSuffix
+		format = dto.StickerFormatVideo
+		convertFn = convertGIF
+	}
+
+	tmpInput, err := downloadImage(url7tv + emoteID + suffix)
 	if err != nil {
-		slog.Error("failed to download image", "err", err.Error())
+		slog.Error("failed to download file", "err", err.Error())
 
 		return err
 	}
 	defer os.Remove(tmpInput)
 
-	tmpOutput, err := convertPNG(tmpInput)
+	slog.Info("downloaded sticker", "url", url, "stickerType", stickerType)
+
+	tmpOutput, err := convertFn(tmpInput)
 	if err != nil {
-		slog.Error("failed to convert image", "err", err.Error())
+		slog.Error("failed to convert file", "err", err.Error())
 
 		return err
 	}
 	defer os.Remove(tmpOutput)
+
+	slog.Info("converted sticker", "url", url, "stickerType", stickerType)
 
 	u := t.constructURL("/addStickerToSet")
 
@@ -42,7 +72,7 @@ func (t *Bot) AddStickerToSet(url string) error {
 			Name:   t.cfg.StickerPackName + "_by_" + t.cfg.BotName,
 			Sticker: dto.InputSticker{
 				Sticker:   attachKey + fileKey,
-				Format:    dto.StickerFormatStatic,
+				Format:    format,
 				EmojiList: []string{"💀"},
 			},
 		},
@@ -121,6 +151,14 @@ func (t *Bot) AddStickerToSet(url string) error {
 	}
 
 	fmt.Printf("%+v", string(resBody))
+
+	if res.StatusCode != http.StatusOK {
+		err = errors.New("failed to add sticker")
+
+		slog.Error("status not ok", "err", err.Error())
+
+		return err
+	}
 
 	return nil
 }

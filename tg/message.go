@@ -40,7 +40,19 @@ func (t *Bot) processUpdate(update dto.Update) error {
 		} else {
 			url := parts[1]
 
-			if err := t.AddStickerToSet(url); err != nil {
+			if err := t.AddStickerToSet(url, stickerTypePNG); err != nil {
+				responseText = err.Error()
+			} else {
+				responseText = "Sticker added to set"
+			}
+		}
+	case "/gif":
+		if len(parts) < 2 {
+			responseText = "Please provide 7tv emote url"
+		} else {
+			url := parts[1]
+
+			if err := t.AddStickerToSet(url, stickerTypeGIF); err != nil {
 				responseText = err.Error()
 			} else {
 				responseText = "Sticker added to set"
