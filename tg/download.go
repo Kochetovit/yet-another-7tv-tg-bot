@@ -55,8 +55,9 @@ func convertPNG(inputPath string) (string, error) {
 	cmd := exec.Command("ffmpeg",
 		"-y",
 		"-i", inputPath,
-		"-vf", `scale='if(gt(iw,ih),512,-1)':'if(gt(ih,iw),512,-1)'`,
+		"-vf", `scale='if(eq(iw,ih),512,if(gt(iw,ih),512,-2))':'if(eq(iw,ih),512,if(gt(ih,iw),512,-2))'`,
 		"-c:v", "png",
+		"-update", "1",
 		tmpOutputPath,
 	)
 
