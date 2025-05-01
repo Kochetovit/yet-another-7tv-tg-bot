@@ -84,10 +84,10 @@ func convertGIF(inputPath string) (string, error) {
 	cmd := exec.Command("ffmpeg",
 		"-y",
 		"-i", inputPath,
-		"-vf", `scale='if(gt(iw,ih),512,-1)':'if(gt(ih,iw),512,-1)',format=yuva420p`,
+		"-vf", `scale='if(eq(iw,ih),512,if(gt(iw,ih),512,-2))':'if(eq(iw,ih),512,if(gt(ih,iw),512,-2))',format=yuva420p`,
 		"-c:v", "libvpx-vp9",
-		"-crf", "30",
-		"-b:v", "0",
+		"-crf", "40", // Increase CRF to reduce file size
+		"-b:v", "200K", // Lower bitrate to fit size constraint
 		"-quality", "good",
 		"-cpu-used", "2",
 		"-auto-alt-ref", "0",
@@ -95,6 +95,8 @@ func convertGIF(inputPath string) (string, error) {
 		"-an",
 		"-loop", "0",
 		"-r", "30",
+		"-fs", "256K", // Max file size 256KB
+		"-t", "3",
 		tmpOutputPath,
 	)
 
