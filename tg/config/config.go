@@ -1,7 +1,6 @@
 package config
 
 import (
-	"encoding/json"
 	"errors"
 	"os"
 	"strconv"
@@ -29,32 +28,10 @@ type Config struct {
 	Port uint64
 }
 
-func Init(configPath string) (*Config, error) {
+func Init() (*Config, error) {
 	c := &Config{}
 
-	var (
-		b   []byte
-		err error
-	)
-
-	b, err = os.ReadFile(configPath)
-	if err != nil {
-		err = errors.Join(
-			errors.New("failed to read config file"),
-			err,
-		)
-
-		return nil, err
-	}
-
-	if err = json.Unmarshal(b, c); err != nil {
-		err = errors.Join(
-			errors.New("failed to unmarshal config file"),
-			err,
-		)
-
-		return nil, err
-	}
+	var err error
 
 	c.WebhookURL = os.Getenv(tgWebhookURLKey)
 	if c.WebhookURL == "" {
