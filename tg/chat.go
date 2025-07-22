@@ -27,9 +27,7 @@ func (t *Bot) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go func() {
-		if err := t.processUpdate(update); err != nil {
-			slog.Error("Error processing update", "err", err.Error())
-		}
-	}()
+	if err := t.processUpdate(update); err != nil {
+		slog.Error("Error processing update", "err", err.Error())
+	}
 }

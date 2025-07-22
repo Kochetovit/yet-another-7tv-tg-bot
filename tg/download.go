@@ -45,7 +45,7 @@ func downloadImage(url string) (string, error) {
 	// Fetch image from URL
 	resp, err := client.Do(req)
 	if err != nil {
-		slog.Error("failed to fetch image new", "err", err.Error())
+		slog.Error("failed to fetch image", "err", err.Error())
 
 		return "", err
 	}
