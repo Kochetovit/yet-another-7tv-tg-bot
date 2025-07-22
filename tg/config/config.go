@@ -13,6 +13,7 @@ const (
 	tgUserIDKey        = "TG_USER_ID"
 	tgBotNameKey       = "TG_BOT_NAME"
 	stickerPackNameKey = "STICKER_PACK_NAME"
+	portKey            = "PORT"
 )
 
 type Config struct {
@@ -25,7 +26,7 @@ type Config struct {
 
 	StickerPackName string
 
-	Port uint
+	Port uint64
 }
 
 func Init(configPath string) (*Config, error) {
@@ -85,6 +86,18 @@ func Init(configPath string) (*Config, error) {
 	c.StickerPackName = os.Getenv(stickerPackNameKey)
 	if c.StickerPackName == "" {
 		return nil, errors.New(stickerPackNameKey + " is not set")
+	}
+
+	port := os.Getenv(portKey)
+
+	c.Port, err = strconv.ParseUint(port, 0, 64)
+	if err != nil {
+		err = errors.Join(
+			errors.New(portKey+" is not set"),
+			err,
+		)
+
+		return nil, err
 	}
 
 	return c, nil
