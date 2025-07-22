@@ -22,8 +22,4 @@ func main() {
 
 		return
 	}
-
-	// if err := tgBot.AddStickerToSet("https://7tv.app/emotes/01FFFPWV180007P57XYW0BHF1Z"); err != nil {
-	// 	slog.Error("failed to get sticker set", "err", err.Error())
-	// }
 }

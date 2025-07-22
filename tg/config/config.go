@@ -7,7 +7,6 @@ import (
 )
 
 const (
-	tgWebhookURLKey    = "TG_WEBHOOK_URL"
 	tgBotTokenKey      = "TG_BOT_TOKEN"
 	tgUserIDKey        = "TG_USER_ID"
 	tgBotNameKey       = "TG_BOT_NAME"
@@ -18,7 +17,6 @@ const (
 type Config struct {
 	// env
 	TelegramBotToken string
-	WebhookURL       string
 
 	UserID  int
 	BotName string
@@ -32,11 +30,6 @@ func Init() (*Config, error) {
 	c := &Config{}
 
 	var err error
-
-	c.WebhookURL = os.Getenv(tgWebhookURLKey)
-	if c.WebhookURL == "" {
-		return nil, errors.New(tgWebhookURLKey + " is not set")
-	}
 
 	c.TelegramBotToken = os.Getenv(tgBotTokenKey)
 	if c.TelegramBotToken == "" {
