@@ -44,7 +44,7 @@ func (t *Bot) AddStickerToSet(url string, stickerType StickerType) error {
 		convertFn = convertGIF
 	}
 
-	tmpInput, err := downloadImage(url7tv + emoteID + suffix)
+	tmpInput, err := downloadImage(t.cfg.URL7tv + "/" + emoteID + "/" + suffix)
 	if err != nil {
 		slog.Warn("failed to download file")
 

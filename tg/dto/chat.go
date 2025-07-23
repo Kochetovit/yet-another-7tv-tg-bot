@@ -13,7 +13,3 @@ type InputMessage struct {
 type Chat struct {
 	ID int64 `json:"id"`
 }
-
-type SetWebhook struct {
-	URL string `json:"url"`
-}

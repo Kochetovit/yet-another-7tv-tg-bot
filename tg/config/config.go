@@ -11,6 +11,7 @@ const (
 	tgUserIDKey        = "TG_USER_ID"
 	tgBotNameKey       = "TG_BOT_NAME"
 	stickerPackNameKey = "STICKER_PACK_NAME"
+	url7tvKey          = "URL_7TV"
 	portKey            = "PORT"
 )
 
@@ -22,6 +23,8 @@ type Config struct {
 	BotName string
 
 	StickerPackName string
+
+	URL7tv string
 
 	Port uint64
 }
@@ -56,6 +59,11 @@ func Init() (*Config, error) {
 	c.StickerPackName = os.Getenv(stickerPackNameKey)
 	if c.StickerPackName == "" {
 		return nil, errors.New(stickerPackNameKey + " is not set")
+	}
+
+	c.URL7tv = os.Getenv(url7tvKey)
+	if c.URL7tv == "" {
+		return nil, errors.New(url7tvKey + " is not set")
 	}
 
 	port := os.Getenv(portKey)

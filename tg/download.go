@@ -15,9 +15,8 @@ import (
 )
 
 const (
-	url7tv    = "https://cdn.7tv.app/emote/"
-	gifSuffix = "/4x.gif"
-	pngSuffix = "/4x.png"
+	gifSuffix = "4x.gif"
+	pngSuffix = "4x.png"
 )
 
 // Use with defer os.Remove(tmpFile.Name())
