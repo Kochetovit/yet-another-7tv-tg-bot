@@ -28,8 +28,8 @@ func (t *Bot) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// hardcode authorization
-	if update.Message.Chat.ID != t.cfg.ChatID {
-		slog.Error("Unauthorized access")
+	if update.Message.Chat.ID != t.cfg.UserID {
+		slog.Error("Unauthorized access", "suspicious userID", update.Message.Chat.ID)
 
 		return
 	}
