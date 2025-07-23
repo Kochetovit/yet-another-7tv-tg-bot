@@ -27,6 +27,13 @@ func (t *Bot) UpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// hardcode authorization
+	if update.Message.Chat.ID != t.cfg.ChatID {
+		slog.Error("Unauthorized access")
+
+		return
+	}
+
 	if err := t.processUpdate(update); err != nil {
 		slog.Error("Error processing update", "err", err.Error())
 	}

@@ -11,8 +11,11 @@ const (
 	tgUserIDKey        = "TG_USER_ID"
 	tgBotNameKey       = "TG_BOT_NAME"
 	stickerPackNameKey = "STICKER_PACK_NAME"
-	url7tvKey          = "URL_7TV"
-	portKey            = "PORT"
+	chatIDKey          = "CHAT_ID"
+
+	url7tvKey = "URL_7TV"
+
+	portKey = "PORT"
 )
 
 type Config struct {
@@ -20,6 +23,7 @@ type Config struct {
 	TelegramBotToken string
 
 	UserID  int
+	ChatID  int64
 	BotName string
 
 	StickerPackName string
@@ -59,6 +63,18 @@ func Init() (*Config, error) {
 	c.StickerPackName = os.Getenv(stickerPackNameKey)
 	if c.StickerPackName == "" {
 		return nil, errors.New(stickerPackNameKey + " is not set")
+	}
+
+	chatID := os.Getenv(chatIDKey)
+
+	c.ChatID, err = strconv.ParseInt(chatID, 10, 64)
+	if err != nil {
+		err = errors.Join(
+			errors.New(chatIDKey+" is not set"),
+			err,
+		)
+
+		return nil, err
 	}
 
 	c.URL7tv = os.Getenv(url7tvKey)
