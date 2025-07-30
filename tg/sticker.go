@@ -31,8 +31,10 @@ const (
 )
 
 type addStickerOptions struct {
-	size   size
-	emotes []string
+	size size
+
+	areEmotesCustom bool
+	emotes          []string
 }
 
 func newAddStickerOptions() *addStickerOptions {
@@ -50,12 +52,18 @@ func WithSize(size size) addStickerOptionsFn {
 	}
 }
 
-func WithEmotes(emotes []string) addStickerOptionsFn {
+func WithEmote(emote string) addStickerOptionsFn {
 	return func(opts *addStickerOptions) {
-		opts.emotes = emotes
+		if !opts.areEmotesCustom {
+			opts.emotes = nil
+			opts.areEmotesCustom = true
+		}
+
+		opts.emotes = append(opts.emotes, emote)
 	}
 }
 
+// divide it into png and gif stickers
 func (t *Bot) AddStickerToSet(
 	url string,
 	stickerType StickerType,

@@ -26,40 +26,26 @@ func (t *Bot) processUpdate(update dto.Update) error {
 		return errors.New("invalid command")
 	}
 
-	command := parts[0]
-	var responseText string
+	route := parts[0]
 
-	switch command {
+	var cmd command
+	switch route {
 	case "/start":
-		if err := t.CreateStickerSet(t.cfg.StickerPackName + "_by_" + t.cfg.BotName); err != nil {
-			responseText = err.Error()
-		}
-	case "/png":
-		if len(parts) < 2 {
-			responseText = "Please provide 7tv emote url"
-		} else {
-			url := parts[1]
-
-			if err := t.AddStickerToSet(url, stickerTypePNG); err != nil {
-				responseText = err.Error()
-			} else {
-				responseText = "Sticker added to set"
-			}
-		}
-	case "/gif":
-		if len(parts) < 2 {
-			responseText = "Please provide 7tv emote url"
-		} else {
-			url := parts[1]
-
-			if err := t.AddStickerToSet(url, stickerTypeGIF); err != nil {
-				responseText = err.Error()
-			} else {
-				responseText = "Sticker added to set"
-			}
-		}
+		cmd = &startCommand{}
+	case "/add":
+		cmd = &addCommand{}
 	default:
-		return errors.New("unknown command")
+		cmd = &helpCommand{}
+	}
+
+	if err := cmd.parseFlags(parts); err != nil {
+		return err
+	}
+
+	// move to exec
+	responseText, err := cmd.exec(t)
+	if err != nil {
+		return err
 	}
 
 	return t.sendMessage(chatID, responseText)
