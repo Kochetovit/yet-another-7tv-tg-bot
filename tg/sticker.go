@@ -22,15 +22,58 @@ const (
 	stickerTypeGIF
 )
 
-func (t *Bot) AddStickerToSet(url string, stickerType StickerType) error {
+type size int
+
+const (
+	SizeS size = 128
+	SizeM size = 256
+	SizeL size = 512
+)
+
+type addStickerOptions struct {
+	size   size
+	emotes []string
+}
+
+func newAddStickerOptions() *addStickerOptions {
+	return &addStickerOptions{
+		size:   SizeL,
+		emotes: []string{"💀"},
+	}
+}
+
+type addStickerOptionsFn func(opts *addStickerOptions)
+
+func WithSize(size size) addStickerOptionsFn {
+	return func(opts *addStickerOptions) {
+		opts.size = size
+	}
+}
+
+func WithEmotes(emotes []string) addStickerOptionsFn {
+	return func(opts *addStickerOptions) {
+		opts.emotes = emotes
+	}
+}
+
+func (t *Bot) AddStickerToSet(
+	url string,
+	stickerType StickerType,
+	opts ...addStickerOptionsFn,
+) error {
 	slog.Info("start adding sticker", "url", url, "stickerType", stickerType)
+
+	o := newAddStickerOptions()
+	for _, fn := range opts {
+		fn(o)
+	}
 
 	emoteID := path.Base(url)
 
 	var (
 		suffix    string
 		format    dto.StickerFormat
-		convertFn func(string) (string, error)
+		convertFn func(string, size) (string, error)
 	)
 
 	switch stickerType {
@@ -54,7 +97,7 @@ func (t *Bot) AddStickerToSet(url string, stickerType StickerType) error {
 
 	slog.Info("downloaded sticker", "url", url, "stickerType", stickerType)
 
-	tmpOutput, err := convertFn(tmpInput)
+	tmpOutput, err := convertFn(tmpInput, o.size)
 	if err != nil {
 		slog.Warn("failed to convert file")
 
@@ -73,7 +116,7 @@ func (t *Bot) AddStickerToSet(url string, stickerType StickerType) error {
 			Sticker: dto.InputSticker{
 				Sticker:   attachKey + fileKey,
 				Format:    format,
-				EmojiList: []string{"💀"},
+				EmojiList: o.emotes,
 			},
 		},
 	)

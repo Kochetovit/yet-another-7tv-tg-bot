@@ -21,8 +21,8 @@ const (
 
 // Use with defer os.Remove(tmpFile.Name())
 func downloadImage(url string) (string, error) {
-	// Create temporary file with "image-*.tmp" pattern
-	tmpFile, err := os.CreateTemp("", "image-*.png")
+	// Create temporary file
+	tmpFile, err := os.CreateTemp("", "image-*.tmp")
 	if err != nil {
 		slog.Error("failed to create temp file", "err", err.Error())
 
@@ -67,7 +67,7 @@ func downloadImage(url string) (string, error) {
 	return tmpFile.Name(), nil
 }
 
-func convertPNG(inputPath string) (string, error) {
+func convertPNG(inputPath string, size size) (string, error) {
 	tmpOutputFile, err := os.CreateTemp("", "output-*.png")
 	if err != nil {
 		slog.Error("failed to create temp file", "err", err.Error())
@@ -81,7 +81,13 @@ func convertPNG(inputPath string) (string, error) {
 	cmd := exec.Command("ffmpeg",
 		"-y",
 		"-i", inputPath,
-		"-vf", `scale='if(eq(iw,ih),512,if(gt(iw,ih),512,-2))':'if(eq(iw,ih),512,if(gt(ih,iw),512,-2))'`,
+		"-vf", fmt.Sprintf(
+			`scale='if(eq(iw,ih),%d,if(gt(iw,ih),%d,-2))':'if(eq(iw,ih),%d,if(gt(ih,iw),%d,-2))'`,
+			size,
+			size,
+			size,
+			size,
+		),
 		"-c:v", "png",
 		"-update", "1",
 		tmpOutputPath,
@@ -100,7 +106,7 @@ func convertPNG(inputPath string) (string, error) {
 	return tmpOutputPath, nil
 }
 
-func convertGIF(inputPath string) (string, error) {
+func convertGIF(inputPath string, size size) (string, error) {
 	tmpOutputFile, err := os.CreateTemp("", "output-*.webm")
 	if err != nil {
 		slog.Error("failed to create temp file", "err", err.Error())
@@ -146,7 +152,14 @@ func convertGIF(inputPath string) (string, error) {
 		speed = duration / 3.0
 	}
 
-	vf := fmt.Sprintf("setpts=PTS/%.4f,fps=30,scale='if(eq(iw,ih),512,if(gt(iw,ih),512,-2))':'if(eq(iw,ih),512,if(gt(ih,iw),512,-2))',format=yuva420p", speed)
+	vf := fmt.Sprintf(
+		"setpts=PTS/%.4f,fps=30,scale='if(eq(iw,ih),%d,if(gt(iw,ih),%d,-2))':'if(eq(iw,ih),%d,if(gt(ih,iw),%d,-2))',format=yuva420p",
+		speed,
+		size,
+		size,
+		size,
+		size,
+	)
 
 	cmd := exec.Command("ffmpeg",
 		"-y",
